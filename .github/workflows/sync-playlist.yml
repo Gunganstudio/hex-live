@@ -1,0 +1,37 @@
+name: Sync Playlist Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # This runs every day at midnight (adjust as needed)
+  workflow_dispatch:  # Allows manual trigger of the workflow
+
+jobs:
+  sync-playlist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install requests PyGithub
+
+      - name: Fetch and update playlist
+        run: |
+          python sync_playlist.py
+
+      - name: Commit changes to GitHub
+        run: |
+          git config --global user.name "Your Name"
+          git config --global user.email "your_email@example.com"
+          git add .
+          git commit -m "Update playlist data"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
